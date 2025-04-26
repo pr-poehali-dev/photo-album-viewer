@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { ArrowLeft, LayoutVertical, LayoutHorizontal } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { v4 as uuidv4 } from "uuid";
 
 const AlbumView = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +16,11 @@ const AlbumView = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [orientation, setOrientation] = useState<"vertical" | "horizontal">("vertical");
   const [albums, setAlbums] = useState<Album[]>([]);
+
+  // Функция для генерации уникального ID (замена uuid)
+  const generateId = () => {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  };
 
   useEffect(() => {
     const savedAlbums = localStorage.getItem("photoAlbums");
@@ -61,7 +65,7 @@ const AlbumView = () => {
     
     const readAndCreatePhotos = async () => {
       for (const file of files) {
-        const photoId = uuidv4();
+        const photoId = generateId();
         const photoName = file.name.split(".")[0] || `Фото ${album.photos.length + newPhotos.length + 1}`;
         
         // Создаем URL для изображения

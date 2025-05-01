@@ -86,11 +86,12 @@ const Index = () => {
             <AlbumCard
               key={album.id}
               album={album}
-              onView={() => navigate(`/album/${album.id}`)}
+              onSelect={() => navigate(`/album/${album.id}`)}
               onRename={renameAlbum}
               onDelete={deleteAlbum}
             />
           ))}
+
           <div 
             className="border-2 border-dashed border-muted-foreground/20 rounded-lg flex items-center justify-center min-h-[250px] cursor-pointer hover:bg-accent/50 transition-colors"
             onClick={createAlbum}

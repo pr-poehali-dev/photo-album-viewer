@@ -7,7 +7,7 @@ import { ViewSelector, ViewMode } from "@/components/ui/view-selector";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 
-import { ArrowLeft, LayoutGrid, AlignHorizontalJustifyCenter } from "lucide-react";
+import { ArrowLeft, AlignJustify, AlignHorizontalJustifyCenter } from "lucide-react";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -160,11 +160,11 @@ const AlbumView = () => {
           <div className="flex items-center gap-4">
             <ToggleGroup type="single" value={orientation} onValueChange={(value) => value && setOrientation(value as "vertical" | "horizontal")}>
               <ToggleGroupItem value="vertical" aria-label="Вертикальная ориентация">
-                <LayoutVertical className="h-4 w-4 mr-1" />
+                <AlignJustify className="h-4 w-4 mr-1" />
                 10×15
               </ToggleGroupItem>
               <ToggleGroupItem value="horizontal" aria-label="Горизонтальная ориентация">
-                <LayoutHorizontal className="h-4 w-4 mr-1" />
+                <AlignHorizontalJustifyCenter className="h-4 w-4 mr-1" />
                 15×10
               </ToggleGroupItem>
             </ToggleGroup>

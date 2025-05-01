@@ -6,7 +6,9 @@ import { PhotoUpload } from "@/components/photo-upload";
 import { ViewSelector, ViewMode } from "@/components/ui/view-selector";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { ArrowLeft, LayoutVertical, LayoutHorizontal } from "lucide-react";
+
+import { ArrowLeft, LayoutGrid, AlignHorizontalJustifyCenter } from "lucide-react";
+
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const AlbumView = () => {

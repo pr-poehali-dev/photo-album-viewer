@@ -3,11 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { Album } from "@/types";
 import { AlbumCard } from "@/components/album-card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { GridSizeSelector } from "@/components/ui/view-selector";
 
 const Index = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
+  const [columns, setColumns] = useState<number>(4);
   const navigate = useNavigate();
 
   // Функция для генерации уникального ID (замена uuid)
@@ -52,6 +65,7 @@ const Index = () => {
       album.id === albumId ? { ...album, name: newName } : album
     );
     setAlbums(updatedAlbums);
+    localStorage.setItem("photoAlbums", JSON.stringify(updatedAlbums));
   };
 
   const deleteAlbum = (albumId: string) => {
@@ -65,6 +79,16 @@ const Index = () => {
     });
   };
 
+  const deleteAllAlbums = () => {
+    setAlbums([]);
+    localStorage.removeItem("photoAlbums");
+    
+    toast({
+      title: "Все альбомы удалены",
+      description: "Все альбомы успешно удалены из коллекции.",
+    });
+  };
+
   return (
     <div className="container py-8 max-w-7xl">
       <header className="mb-8">
@@ -73,25 +97,57 @@ const Index = () => {
           <p className="text-muted-foreground">
             {albums.length} {albums.length === 1 ? "альбом" : albums.length >= 2 && albums.length <= 4 ? "альбома" : "альбомов"}
           </p>
-          <Button onClick={createAlbum}>
-            <PlusCircle className="h-4 w-4 mr-2" />
-            Создать альбом
-          </Button>
+          <div className="flex gap-2 items-center">
+            {albums.length > 0 && (
+              <>
+                <div className="mr-2">
+                  <GridSizeSelector columns={columns} onChange={setColumns} />
+                </div>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Удалить все
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Удалить все альбомы?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Это действие нельзя отменить. Все альбомы и фотографии будут безвозвратно удалены.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Отмена</AlertDialogCancel>
+                      <AlertDialogAction onClick={deleteAllAlbums} className="bg-destructive text-destructive-foreground">
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                        Удалить все
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </>
+            )}
+            <Button onClick={createAlbum}>
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Создать альбом
+            </Button>
+          </div>
         </div>
       </header>
 
       {albums.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className={`album-grid cols-${columns}`}>
           {albums.map((album) => (
             <AlbumCard
               key={album.id}
               album={album}
-              onSelect={() => navigate(`/album/${album.id}`)}
+              onSelect={(albumId) => navigate(`/album/${albumId}`)}
               onRename={renameAlbum}
               onDelete={deleteAlbum}
             />
           ))}
-
           <div 
             className="border-2 border-dashed border-muted-foreground/20 rounded-lg flex items-center justify-center min-h-[250px] cursor-pointer hover:bg-accent/50 transition-colors"
             onClick={createAlbum}

@@ -3,20 +3,28 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Album, Photo } from "@/types";
 import { PhotoItem } from "@/components/photo-item";
 import { PhotoUpload } from "@/components/photo-upload";
-import { ViewSelector, ViewMode } from "@/components/ui/view-selector";
+import { ViewSelector, ViewMode, GapSelector } from "@/components/ui/view-selector";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-
-import { ArrowLeft, AlignJustify, AlignHorizontalJustifyCenter } from "lucide-react";
-
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ArrowLeft, Trash2, AlertTriangle } from "lucide-react";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const AlbumView = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [album, setAlbum] = useState<Album | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [orientation, setOrientation] = useState<"vertical" | "horizontal">("vertical");
+  const [gapSize, setGapSize] = useState<"small" | "medium" | "large">("medium");
   const [albums, setAlbums] = useState<Album[]>([]);
 
   // Функция для генерации уникального ID (замена uuid)
@@ -135,6 +143,18 @@ const AlbumView = () => {
     });
   };
 
+  const deleteAllPhotos = () => {
+    if (!album) return;
+
+    const updatedAlbum = { ...album, photos: [] };
+    updateAlbumInStorage(updatedAlbum);
+
+    toast({
+      title: "Все фото удалены",
+      description: "Все фотографии успешно удалены из альбома.",
+    });
+  };
+
   if (!album) {
     return <div className="container py-8">Загрузка...</div>;
   }
@@ -157,25 +177,48 @@ const AlbumView = () => {
           <p className="text-muted-foreground">
             {album.photos.length} фотографий
           </p>
-          <div className="flex items-center gap-4">
-            <ToggleGroup type="single" value={orientation} onValueChange={(value) => value && setOrientation(value as "vertical" | "horizontal")}>
-              <ToggleGroupItem value="vertical" aria-label="Вертикальная ориентация">
-                <AlignJustify className="h-4 w-4 mr-1" />
-                10×15
-              </ToggleGroupItem>
-              <ToggleGroupItem value="horizontal" aria-label="Горизонтальная ориентация">
-                <AlignHorizontalJustifyCenter className="h-4 w-4 mr-1" />
-                15×10
-              </ToggleGroupItem>
-            </ToggleGroup>
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-muted-foreground">Отступы:</span>
+              <GapSelector gapSize={gapSize} onChange={setGapSize} />
+            </div>
+            
             <ViewSelector viewMode={viewMode} onChange={setViewMode} />
-            <PhotoUpload albumId={album.id} onUpload={handlePhotoUpload} />
+            
+            <div className="flex gap-2">
+              {album.photos.length > 0 && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Удалить все фото
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Удалить все фотографии?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Это действие нельзя отменить. Все фотографии будут безвозвратно удалены из альбома.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Отмена</AlertDialogCancel>
+                      <AlertDialogAction onClick={deleteAllPhotos} className="bg-destructive text-destructive-foreground">
+                        <AlertTriangle className="h-4 w-4 mr-2" />
+                        Удалить все
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              <PhotoUpload albumId={album.id} onUpload={handlePhotoUpload} />
+            </div>
           </div>
         </div>
       </header>
 
       {album.photos.length > 0 ? (
-        <div className={`photo-grid photo-grid-${viewMode} ${orientation === 'vertical' ? 'vertical-grid' : 'horizontal-grid'}`}>
+        <div className={`photo-grid photo-grid-${viewMode} gap-${gapSize}`}>
           {album.photos.map((photo) => (
             <PhotoItem
               key={photo.id}

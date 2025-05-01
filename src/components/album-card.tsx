@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pencil, Trash, Check, X } from "lucide-react";
+import { Pencil, Trash, Check, X, Camera } from "lucide-react";
 import { Album } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +45,9 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
           alt={album.name}
           className="w-full h-full object-cover"
         />
+        <div className="album-icon">
+          <Camera className="h-4 w-4" />
+        </div>
         {!isEditing ? (
           <div className="album-title">
             <div className="flex justify-between items-center">
